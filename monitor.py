@@ -9,7 +9,7 @@ import pandas as pd
 # --- CONFIGURATION ---
 DB_PATH = "instance/database.db"
 TELEGRAM_BOT_TOKEN = "YOUR-TELEGRAM-BOT-TOKEN"
-TEST_MODE = True 
+TEST_MODE = False 
 
 # --- CONSTANTS ---
 MARKET_OPEN = dt_time(9, 15)
