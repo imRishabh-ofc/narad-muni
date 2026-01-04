@@ -1,0 +1,33 @@
+{% for stock in stocks %}
+    <div onclick="openDeepDive()" 
+         hx-get="/htmx/stock_details/{{ stock.symbol }}" 
+         hx-target="#deepDiveContent" 
+         hx-trigger="click"
+         class="grid grid-cols-12 gap-4 items-center p-4 hover:bg-gray-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-gray-100 group">
+        
+        <div class="col-span-3">
+            <div class="font-bold text-gray-900">{{ stock.symbol }}</div>
+            <div class="text-xs text-gray-500 font-medium">NSE Equity</div>
+        </div>
+
+        <div class="col-span-3">
+            <div class="font-bold text-gray-900">₹{{ stock.price }}</div>
+        </div>
+
+        <div class="col-span-3">
+            <div class="font-bold {% if stock.pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if stock.pnl > 0 %}+{% endif %}₹{{ stock.pnl }}
+            </div>
+            <div class="text-xs font-medium {% if stock.pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                {{ stock.pnl_pct }}%
+            </div>
+        </div>
+
+        <div class="col-span-3 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="event.stopPropagation(); openDeleteModal('{{ stock.id }}', '{{ stock.symbol }}')" 
+                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+        </div>
+    </div>
+{% endfor %}

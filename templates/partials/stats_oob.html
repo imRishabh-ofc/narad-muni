@@ -1,0 +1,15 @@
+<div id="stat-value" hx-swap-oob="true" class="text-2xl font-extrabold text-gray-900">
+    ₹{{ value }}
+</div>
+
+<div id="stat-invested" hx-swap-oob="true" class="text-2xl font-extrabold text-gray-900">
+    ₹{{ invested }}
+</div>
+
+<div id="stat-daily-pnl" hx-swap-oob="true" class="text-2xl font-extrabold {% if daily_pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+    {% if daily_pnl > 0 %}+{% endif %}₹{{ daily_pnl }}
+</div>
+
+<div id="stat-total-pnl" hx-swap-oob="true" class="text-2xl font-extrabold {% if pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+    {% if pnl > 0 %}+{% endif %}₹{{ pnl }}
+</div>

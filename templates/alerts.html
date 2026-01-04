@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 min-h-[500px]">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                <h2 class="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    Active Watchlist
+                    <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{{ alerts|length }}</span>
+                </h2>
+                <div class="text-xs text-gray-400 font-medium">Real-time Monitoring</div>
+            </div>
+
+            <div class="space-y-3">
+                {% for alert in alerts %}
+                <div class="group flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-blue-200 hover:shadow-sm transition-all bg-gray-50/50 hover:bg-white">
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        </div>
+                        
+                        <div>
+                            <div class="font-bold text-gray-900 text-lg">{{ alert.symbol }}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded text-gray-600 bg-gray-200 border border-gray-300">
+                                    {{ alert.condition }}
+                                </span>
+                                <span class="text-sm font-semibold text-gray-700">₹{{ alert.target_price }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form action="/delete_alert/{{ alert.id }}" method="POST">
+                        <button class="text-gray-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Remove Alert">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="text-center py-16">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                    </div>
+                    <h3 class="text-gray-900 font-bold mb-1">No Active Alerts</h3>
+                    <p class="text-gray-400 text-sm">Set a price target on the right to get started.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="lg:col-span-4 space-y-6">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 sticky top-6">
+            <h3 class="font-bold text-lg text-gray-900 mb-1">Set New Alert</h3>
+            <p class="text-sm text-gray-500 mb-6">Receive instant Telegram notifications.</p>
+            
+            <form action="/set_alert" method="POST" class="space-y-5">
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Stock Symbol</label>
+                    <div class="relative">
+                        <input type="text" name="symbol" placeholder="e.g. ZOMATO.NS" 
+                               class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-black focus:border-black block p-3 outline-none font-medium uppercase" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Target Price</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-400 font-bold">₹</span>
+                        <input type="number" step="0.05" name="target" placeholder="150.00" 
+                               class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-black focus:border-black block p-3 pl-7 outline-none font-medium" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Condition</label>
+                    <select name="condition" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-black focus:border-black block p-3 outline-none font-medium">
+                        <option value="ABOVE">Price Goes Above ( > )</option>
+                        <option value="BELOW">Price Goes Below ( < )</option>
+                    </select>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 leading-relaxed border border-blue-100">
+                    <strong>Tip:</strong> Narad Muni will message you immediately when this price is hit. Ensure your Telegram is connected in Settings.
+                </div>
+
+                <button class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex justify-center items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    Create Alert
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

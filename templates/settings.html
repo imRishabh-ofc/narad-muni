@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-900 tracking-tight">Account Settings</h1>
+
+<div class="space-y-8 max-w-2xl">
+    
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+        <h3 class="font-bold mb-4 flex items-center gap-3 text-lg">
+            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+            </div>
+            Telegram Notification Setup
+        </h3>
+        
+        <form action="/update_telegram" method="POST" class="flex gap-3 mb-6">
+            <div class="relative flex-1">
+                <input type="text" name="chat_id" value="{{ user.telegram_chat_id or '' }}" placeholder="Enter your Numeric Chat ID" 
+                       class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-3 outline-none transition-all">
+            </div>
+            <button class="bg-gray-900 hover:bg-black text-white px-6 rounded-xl font-bold shadow-md hover:shadow-lg transition-all">
+                Save ID
+            </button>
+        </form>
+
+        <div class="bg-blue-50/50 border border-blue-100 p-5 rounded-xl text-sm text-blue-900 mb-6">
+            <p class="font-bold mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                How to connect:
+            </p>
+            <ol class="list-decimal list-inside space-y-1.5 text-blue-800 ml-1">
+                <li>Open Telegram and search for <b class="text-blue-700">@NaradMuni_ka_Bot</b></li>
+                <li>Tap <b>Start</b> to activate the bot.</li>
+                <li>Visit <a href="https://t.me/userinfobot" target="_blank" class="underline font-semibold decoration-blue-400 decoration-2 underline-offset-2 hover:text-blue-600">@userinfobot</a> to get your numeric ID.</li>
+                <li>Paste the ID above and click Save.</li>
+            </ol>
+        </div>
+
+        <form action="/test_telegram" method="POST">
+            <button class="w-full group border border-gray-200 bg-white text-gray-700 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all font-medium flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                Send Test Message
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-100">
+        <h3 class="font-bold text-red-600 mb-2 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            Danger Zone
+        </h3>
+        <p class="text-gray-500 text-sm mb-5">Permanently delete your account and all associated portfolio data. This action cannot be undone.</p>
+        <form action="/delete_account" method="POST" onsubmit="return confirm('Are you absolutely sure? This will wipe everything.');">
+            <button class="bg-red-50 text-red-600 border border-red-100 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-red-600 hover:text-white hover:border-red-600 transition-all">
+                Delete Account & Data
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

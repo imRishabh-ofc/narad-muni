@@ -1,0 +1,25 @@
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in-down">
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+        <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Current Value</div>
+        <div class="text-2xl font-extrabold text-gray-900">₹{{ value }}</div>
+    </div>
+    
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+        <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Invested</div>
+        <div class="text-2xl font-extrabold text-gray-900">₹{{ invested }}</div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+        <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Day's P&L</div>
+        <div class="text-2xl font-extrabold {% if daily_pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+            {% if daily_pnl > 0 %}+{% endif %}₹{{ daily_pnl }}
+        </div>
+    </div>
+    
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+        <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total P&L</div>
+        <div class="text-2xl font-extrabold {% if pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+            {% if pnl > 0 %}+{% endif %}₹{{ pnl }}
+        </div>
+    </div>
+</div>

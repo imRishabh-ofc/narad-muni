@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+            <p class="text-sm text-gray-500">Real-time portfolio overview</p>
+        </div>
+        
+        <button onclick="openAddModal()" class="group flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Add Position
+        </button>
+    </div>
+
+    <div hx-get="/htmx/stats" hx-trigger="every 2s" class="hidden"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Current Value</div>
+            <div id="stat-value" class="text-2xl font-extrabold text-gray-900">₹{{ value }}</div>
+        </div>
+        
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Invested</div>
+            <div id="stat-invested" class="text-2xl font-extrabold text-gray-900">₹{{ invested }}</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Day's P&L</div>
+            <div id="stat-daily-pnl" class="text-2xl font-extrabold {% if daily_pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if daily_pnl > 0 %}+{% endif %}₹{{ daily_pnl }}
+            </div>
+        </div>
+        
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total P&L</div>
+            <div id="stat-total-pnl" class="text-2xl font-extrabold {% if pnl >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if pnl > 0 %}+{% endif %}₹{{ pnl }}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 space-y-6">
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                    Asset Allocation
+                </h3>
+                <div class="relative h-56 w-full flex justify-center items-center">
+                    <canvas id="portfolioChart"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total</span>
+                        <span id="chartTotal" class="text-lg font-extrabold text-gray-900">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                    Market Intelligence
+                </h3>
+                
+                <div hx-get="/htmx/news" hx-trigger="load" hx-swap="innerHTML">
+                    <div class="space-y-4 animate-pulse">
+                        <div class="h-20 bg-gray-50 rounded-xl border border-gray-100"></div>
+                        <div class="h-20 bg-gray-50 rounded-xl border border-gray-100"></div>
+                        <div class="h-20 bg-gray-50 rounded-xl border border-gray-100"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-100 p-5 rounded-2xl">
+                <div class="flex items-start gap-3">
+                    <div class="mt-1">
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                        </span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-blue-900 text-sm">Narad Muni is Active</h4>
+                        <p class="text-xs text-blue-700 mt-1">Live prices & news updating automatically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="bg-white p-0 rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-900">Holdings</h2>
+                    <span class="text-xs font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded">LIVE</span>
+                </div>
+
+                <div hx-get="/htmx/rows" hx-trigger="load, every 2s" hx-swap="innerHTML" class="p-2">
+                     <div class="text-center text-gray-400 py-12 flex flex-col items-center">
+                         <svg class="w-8 h-8 mb-3 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                         <span class="text-xs font-medium">Loading portfolio...</span>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeAddModal()"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                
+                <div class="relative transform overflow-visible rounded-2xl bg-white text-left shadow-2xl transition-all sm:w-full sm:max-w-lg border border-gray-100">
+                    <div class="bg-white p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-5">
+                            <h3 class="text-xl font-bold text-gray-900">Add New Position</h3>
+                            <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+
+                        <form action="/add_stock" method="POST" class="space-y-5" autocomplete="off">
+                            <div class="relative group">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Stock Symbol</label>
+                                
+                                <input type="text" id="symbolInput" name="symbol" placeholder="Search (e.g. RELIANCE)" 
+                                       class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-black focus:border-black block p-4 outline-none font-bold uppercase" 
+                                       required>
+                                
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none mt-6">
+                                    <span class="text-gray-400 text-xs font-bold bg-gray-100 px-2 py-1 rounded">NSE</span>
+                                </div>
+
+                                <ul id="searchResults" class="hidden absolute left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto divide-y divide-gray-50">
+                                    </ul>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Avg Price</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-4 text-gray-400 font-bold text-sm">₹</span>
+                                        <input type="number" step="0.01" name="price" placeholder="0.00" 
+                                               class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-black focus:border-black block p-4 pl-8 outline-none font-bold" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Quantity</label>
+                                    <input type="number" step="0.01" name="qty" placeholder="1" 
+                                           class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-black focus:border-black block p-4 outline-none font-bold" required>
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <button class="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform active:scale-95 flex justify-center items-center gap-2">
+                                    Track Asset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-50 sm:mx-0 sm:h-10 sm:w-10"><svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left"><h3 class="text-lg font-semibold leading-6 text-gray-900">Confirm Deletion</h3><div class="mt-2"><p class="text-sm text-gray-500">Remove <span id="modal-stock-symbol" class="font-bold text-gray-900"></span>? This cannot be undone.</p></div></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <form id="modal-delete-form" method="POST" class="w-full sm:w-auto"><button type="submit" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition-all">Delete Stock</button></form>
+                        <button type="button" onclick="closeDeleteModal()" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition-all">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deepDiveModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/80 backdrop-blur-md transition-opacity" onclick="closeDeepDive()"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div id="deepDiveContent" class="w-full max-w-2xl flex justify-center">
+                    <div class="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center">
+                        <svg class="w-10 h-10 text-gray-300 animate-spin mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="text-gray-500 font-bold animate-pulse">Fetching Live Chart...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const niftyStocks = {{ nifty_stocks | tojson }};
+    </script>
+
+    <script>
+        // --- SEARCH LOGIC (RESTORED) ---
+        const searchInput = document.getElementById('symbolInput');
+        const resultsList = document.getElementById('searchResults');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                resultsList.innerHTML = '';
+                
+                if (query.length < 2) {
+                    resultsList.classList.add('hidden');
+                    return;
+                }
+
+                // Filter Stocks (Limit to 8)
+                const matches = niftyStocks.filter(stock => 
+                    stock.symbol.toLowerCase().includes(query) || 
+                    stock.name.toLowerCase().includes(query)
+                ).slice(0, 8); 
+
+                if (matches.length > 0) {
+                    matches.forEach(stock => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer flex flex-col transition-colors';
+                        li.innerHTML = `
+                            <span class="font-bold text-gray-900 text-sm">${stock.symbol}</span>
+                            <span class="text-xs text-gray-500">${stock.name}</span>
+                        `;
+                        li.onclick = () => {
+                            searchInput.value = stock.symbol;
+                            resultsList.classList.add('hidden');
+                        };
+                        resultsList.appendChild(li);
+                    });
+                    resultsList.classList.remove('hidden');
+                } else {
+                    resultsList.classList.add('hidden');
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !resultsList.contains(e.target)) {
+                    resultsList.classList.add('hidden');
+                }
+            });
+        }
+
+        // --- MODAL & CHART LOGIC ---
+        function openAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+        function openDeleteModal(id, symbol) { document.getElementById('modal-stock-symbol').textContent = symbol; document.getElementById('modal-delete-form').action = "/delete_stock/" + id; document.getElementById('deleteModal').classList.remove('hidden'); }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.add('hidden'); }
+        function openDeepDive() { document.getElementById('deepDiveModal').classList.remove('hidden'); }
+        function closeDeepDive() { 
+            document.getElementById('deepDiveModal').classList.add('hidden');
+            setTimeout(() => { document.getElementById('deepDiveContent').innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center"><svg class="w-10 h-10 text-gray-300 animate-spin mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-gray-500 font-bold animate-pulse">Fetching Live Chart...</span></div>'; }, 300);
+        }
+
+        async function loadChart() {
+            try {
+                const response = await fetch('/api/chart_data');
+                const data = await response.json();
+                document.getElementById('chartTotal').innerText = "₹" + data.total_value;
+                const ctx = document.getElementById('portfolioChart').getContext('2d');
+                if (window.myChart) {
+                    window.myChart.data.labels = data.labels;
+                    window.myChart.data.datasets[0].data = data.data;
+                    window.myChart.update();
+                } else {
+                    window.myChart = new Chart(ctx, { type: 'doughnut', data: { labels: data.labels, datasets: [{ data: data.data, backgroundColor: ['#111827', '#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#6B7280'], borderWidth: 0, hoverOffset: 10 }] }, options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1F2937', padding: 12, cornerRadius: 8, displayColors: false, callbacks: { label: function(context) { return ' ₹' + context.parsed; } } } }, animation: { animateScale: true, animateRotate: true } } });
+                }
+            } catch (error) { console.error("Chart load failed", error); }
+        }
+        loadChart();
+        setInterval(loadChart, 10000);
+    </script>
+{% endblock %}
