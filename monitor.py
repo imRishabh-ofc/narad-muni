@@ -8,7 +8,7 @@ import pandas as pd
 
 # --- CONFIGURATION ---
 DB_PATH = "instance/database.db"
-TELEGRAM_BOT_TOKEN = "8566308729:AAHo8FVGyur2icKIGjVcfKKcWQwi2w14Ijc"
+TELEGRAM_BOT_TOKEN = "YOUR-TELEGRAM-BOT-TOKEN"
 TEST_MODE = True 
 
 # --- CONSTANTS ---
